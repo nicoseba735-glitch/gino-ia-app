@@ -269,15 +269,18 @@
             if (event.key === "Enter") enviarMensaje();
         }
 
-        function agregarMensaje(texto, remitente) {
-            const nuevoMensaje = document.createElement('div');
-            nuevoMensaje.classList.add('mensaje', remitente);
-            nuevoMensaje.innerText = texto;
-            chatBox.appendChild(nuevoMensaje);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+        function appendMessage(text, sender) {
+    const nuevoMensaje = document.createElement('div');
+    nuevoMensaje.classList.add('mensaje', sender);
+    nuevoMensaje.innerText = text;
+    chatBox.appendChild(nuevoMensaje);
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-                // ==========================================
+    // 🔥 NUEVO: Guarda el historial actualizado cada vez que se agrega un mensaje
+    guardarHistorial();
+}
+
+         // ==========================================
         // 🎙️ SISTEMA DE RECONOCIMIENTO DE VOZ RE-ACTIVADO
         // ==========================================
         let reconocimiento;
