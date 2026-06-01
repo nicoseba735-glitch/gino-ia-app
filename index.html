@@ -328,6 +328,37 @@
                 reconocimiento.start();
             }
         }
+// 🔥 NUEVO: Función para guardar todos los mensajes en el celu
+function guardarHistorial() {
+    const mensajes = [];
+    document.querySelectorAll('.chat-box .mensaje').forEach(msg => {
+        mensajes.push({
+            text: msg.innerText,
+            // Nos fijamos si la clase es 'gino' o 'usuario' para saber quién lo mandó
+            sender: msg.classList.contains('usuario') ? 'usuario' : 'gino'
+        });
+    });
+    localStorage.setItem('historialChatGino', JSON.stringify(mensajes));
+}
+
+// 🔥 NUEVO: Función para cargar los mensajes guardados al abrir la app
+function cargarHistorial() {
+    const historial = localStorage.getItem('historialChatGino');
+    if (historial) {
+        // Borramos el mensaje de bienvenida por defecto para no duplicarlo si ya hay historial
+        chatBox.innerHTML = ''; 
+        
+        const mensajesGuardados = JSON.parse(historial);
+        mensajesGuardados.forEach(msg => {
+            // Usamos una función clon de appendMessage pero que no vuelva a disparar el guardado
+            const nuevoMensaje = document.createElement('div');
+            nuevoMensaje.classList.add('mensaje', msg.sender);
+            nuevoMensaje.innerText = msg.text;
+            chatBox.appendChild(nuevoMensaje);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
 
     </script>
 </body>
