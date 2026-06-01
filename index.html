@@ -359,6 +359,8 @@ function cargarHistorial() {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 }
+// 🔥 NUEVO: Carga el chat viejo apenas se inicia la app
+document.addEventListener('DOMContentLoaded', cargarHistorial);
 
     </script>
 </body>
