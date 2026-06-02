@@ -240,33 +240,35 @@ const API_KEY = "PROTEGIDA";
                 estado.innerText = "● Gino está pensando...";
                 estado.style.color = "#ffeb3b";
 
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-                const data = {
-                    contents: [{ parts: [{ text: textoPrompt }] }],
-                    systemInstruction: {
-                        parts: [{ text: "Tu nombre es Gino. Sos una inteligencia artificial amigable creada por Nicolas Brizuela para ayudar al usuario. Hablás en español latino corto, alegre y fluido, usando modismos argentinos de forma natural." }]
-                    }
-                };
+                // Cambiá la dirección larga de Google por esta ruta cortita:
+const url = "/api/chat"; 
+                try {
+            estado.innerText = "● Gino está pensando...";
+            estado.style.color = "#ffeb3b";
 
-                const respuesta = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+            // 1. Borrás la URL larga y ponés tu ruta cortita de Vercel
+            const url = "/api/chat"; 
+            
+            // 2. Hacés la petición mandando el objeto 'mensaje' que espera tu backend
+            const respuesta = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mensaje: textoPrompt })
+            });
 
-                const resultadoJson = await respuesta.json();
-                
-                // Validación para ver si Google devolvió un error específico de API Key o cuota
-                if (resultadoJson.error) {
-                    console.error("Error de la API de Google:", resultadoJson.error.message);
-                    agregarMensaje(`Error del servidor: ${resultadoJson.error.message}`, 'gino');
-                    return;
-                }
+            const resultadoJson = await respuesta.json();
+            
+            if (resultadoJson.error) {
+                console.error("Error desde tu API:", resultadoJson.error);
+                agregarMensaje("Che, hubo un problema en mi servidor en la nube.", 'gino');
+                return;
+            }
 
-                const respuestaIA = resultadoJson.candidates[0].content.parts[0].text;
-                agregarMensaje(respuestaIA, 'gino');
+            // 3. Tu API ya te devuelve la respuesta limpia
+            agregarMensaje(resultadoJson.respuesta, 'gino');
 
-            } catch (error) {
+        } catch (error) {
+
                 console.error("Error en la petición Fetch:", error);
                 agregarMensaje("Che, se me cortó la onda con el servidor. Revisá la API Key.", 'gino');
             } finally {
