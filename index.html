@@ -1,10 +1,10 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-        <link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="theme-color" content="#1e3c72">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="theme-color" content="#1e3c72">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -180,7 +180,7 @@
 
         <div class="chat-box" id="chatBox">
             <div class="mensaje gino">
-                ¡Hola! Soy Gino, soy una ia (engau) de Nico.B y estoy acá para ayudarte. ¿De qué te gustaría charlar hoy? 😊
+                ¡Hola! Soy Gino, soy una ia de Nico.B y estoy acá para ayudarte. ¿De qué te gustaría charlar hoy? 😊
             </div>
         </div>
 
@@ -193,11 +193,11 @@
 
     <script>
         // ==========================================
-        // CONFIGURACIÓN: TU API KEY
+        // CONFIGURACIÓN: TU API KEY (Asegurate de que empiece con AIzaSy...)
         // ==========================================
         const API_KEY = "AQ.Ab8RN6JamultzrwNpj1nbfogkQ-vqkgyxhFxhMaaTwoIPlPbWA"; 
 
-        // Burbujas
+        // Generar burbujas de fondo automáticamente
         const contenedor = document.getElementById('contenedor-burbujas');
         for (let i = 0; i < 15; i++) {
             let burbuja = document.createElement('div');
@@ -242,7 +242,7 @@
                 const data = {
                     contents: [{ parts: [{ text: textoPrompt }] }],
                     systemInstruction: {
-                        parts: [{ text: "Tu nombre es Gino. Sos una inteligencia artificial amigable creada por Nicolas Brizuela para ayudar al usuario. Hablás en español latino corto, alegre y fluido." }]
+                        parts: [{ text: "Tu nombre es Gino. Sos una inteligencia artificial amigable creada por Nicolas Brizuela para ayudar al usuario. Hablás en español latino corto, alegre y fluido, usando modismos argentinos de forma natural." }]
                     }
                 };
 
@@ -253,11 +253,19 @@
                 });
 
                 const resultadoJson = await respuesta.json();
+                
+                // Validación para ver si Google devolvió un error específico de API Key o cuota
+                if (resultadoJson.error) {
+                    console.error("Error de la API de Google:", resultadoJson.error.message);
+                    agregarMensaje(`Error del servidor: ${resultadoJson.error.message}`, 'gino');
+                    return;
+                }
+
                 const respuestaIA = resultadoJson.candidates[0].content.parts[0].text;
                 agregarMensaje(respuestaIA, 'gino');
 
             } catch (error) {
-                console.error(error);
+                console.error("Error en la petición Fetch:", error);
                 agregarMensaje("Che, se me cortó la onda con el servidor. Revisá la API Key.", 'gino');
             } finally {
                 estado.innerText = "● En línea";
@@ -269,22 +277,23 @@
             if (event.key === "Enter") enviarMensaje();
         }
 
-        function appendMessage(text, sender) {
-    const nuevoMensaje = document.createElement('div');
-    nuevoMensaje.classList.add('mensaje', sender);
-    nuevoMensaje.innerText = text;
-    chatBox.appendChild(nuevoMensaje);
-    chatBox.scrollTop = chatBox.scrollHeight;
+        // CORREGIDO: Se cambió el nombre para coincidir con tus llamadas en el código anterior
+        function agregarMensaje(text, sender) {
+            const nuevoMensaje = document.createElement('div');
+            nuevoMensaje.classList.add('mensaje', sender);
+            nuevoMensaje.innerText = text;
+            chatBox.appendChild(nuevoMensaje);
+            chatBox.scrollTop = chatBox.scrollHeight;
 
-    // 🔥 NUEVO: Guarda el historial actualizado cada vez que se agrega un mensaje
-    guardarHistorial();
-}
+            // Guarda el historial actualizado cada vez que se agrega un mensaje
+            guardarHistorial();
+        }
 
-         // ==========================================
+        // ==========================================
         // 🎙️ SISTEMA DE RECONOCIMIENTO DE VOZ RE-ACTIVADO
         // ==========================================
         let reconocimiento;
-        let grabando = false;
+        let grabbing = false;
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
@@ -328,40 +337,38 @@
                 reconocimiento.start();
             }
         }
-// 🔥 NUEVO: Función para guardar todos los mensajes en el celu
-function guardarHistorial() {
-    const mensajes = [];
-    document.querySelectorAll('.chat-box .mensaje').forEach(msg => {
-        mensajes.push({
-            text: msg.innerText,
-            // Nos fijamos si la clase es 'gino' o 'usuario' para saber quién lo mandó
-            sender: msg.classList.contains('usuario') ? 'usuario' : 'gino'
-        });
-    });
-    localStorage.setItem('historialChatGino', JSON.stringify(mensajes));
-}
 
-// 🔥 NUEVO: Función para cargar los mensajes guardados al abrir la app
-function cargarHistorial() {
-    const historial = localStorage.getItem('historialChatGino');
-    if (historial) {
-        // Borramos el mensaje de bienvenida por defecto para no duplicarlo si ya hay historial
-        chatBox.innerHTML = ''; 
-        
-        const mensajesGuardados = JSON.parse(historial);
-        mensajesGuardados.forEach(msg => {
-            // Usamos una función clon de appendMessage pero que no vuelva a disparar el guardado
-            const nuevoMensaje = document.createElement('div');
-            nuevoMensaje.classList.add('mensaje', msg.sender);
-            nuevoMensaje.innerText = msg.text;
-            chatBox.appendChild(nuevoMensaje);
-        });
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-}
-// 🔥 NUEVO: Carga el chat viejo apenas se inicia la app
-document.addEventListener('DOMContentLoaded', cargarHistorial);
+        // Función para guardar todos los mensajes en el celu/navegador
+        function guardarHistorial() {
+            const mensajes = [];
+            document.querySelectorAll('.chat-box .mensaje').forEach(msg => {
+                mensajes.push({
+                    text: msg.innerText,
+                    sender: msg.classList.contains('usuario') ? 'usuario' : 'gino'
+                });
+            });
+            localStorage.setItem('historialChatGino', JSON.stringify(mensajes));
+        }
 
+        // Función para cargar los mensajes guardados al abrir la app
+        function cargarHistorial() {
+            const historial = localStorage.getItem('historialChatGino');
+            if (historial) {
+                chatBox.innerHTML = ''; // Limpiamos para evitar duplicados
+                
+                const mensajesGuardados = JSON.parse(historial);
+                mensajesGuardados.forEach(msg => {
+                    const nuevoMensaje = document.createElement('div');
+                    nuevoMensaje.classList.add('mensaje', msg.sender);
+                    nuevoMensaje.innerText = msg.text;
+                    chatBox.appendChild(nuevoMensaje);
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        // Carga el chat viejo apenas se inicia la app
+        document.addEventListener('DOMContentLoaded', cargarHistorial);
     </script>
 </body>
-  </html>
+</html>
